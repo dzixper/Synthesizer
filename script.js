@@ -1,7 +1,11 @@
 "use strict";
 
-var context = new(window.AudioContext || window.webkitAudioContext)();
-var oscillator = context.createOscillator();
+var context = new(window.AudioContext || window.webkitAudioContext)(),
+    oscillator = context.createOscillator(),
+    oscillatorType,
+    octave,
+    detune,
+    sustain;
 
 class Sound {
 
@@ -15,7 +19,8 @@ class Sound {
 
         this.oscillator.connect(this.gainNode);
         this.gainNode.connect(this.context.destination);
-        this.oscillator.type = 'sine';
+        this.oscillator.type = oscillatorType;
+        this.oscillator.detune.value = detune + octave;
     }
 
     play(value, time) {
@@ -30,13 +35,52 @@ class Sound {
     }
 
     stop(time) {
-        this.gainNode.gain.exponentialRampToValueAtTime(0.0001, time + 2);
+        this.gainNode.gain.exponentialRampToValueAtTime(sustain, time + 1);
         this.oscillator.stop(time + 1);
     }
 
 }
 
 var sound = new Sound(context);
+setDefault();
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve,ms));
+}
+
+function setDetune(detuneValue) {
+    detune = detuneValue * 1;
+    document.getElementById("detuneValue").innerHTML = detuneValue + " cents";
+}
+
+function setOctave(octaveValue) {
+    octave = octaveValue * 1200;
+    document.getElementById("octaveValue").innerHTML = octaveValue + " octave";
+}
+
+function setSustain(sustainValue) {
+    sustain = 0.0000001;
+    for (let i=0; i<=sustainValue; i++) {
+        sustain *= 10;
+    }
+    document.getElementById("sustainValue").innerHTML = sustainValue + " level";
+}
+
+function setDefault() {
+    setDetune(0);
+    setOctave(0);
+    setSustain(0);
+}
+
+function lofiEffect() {
+    setDetune(150);
+    for (let i = 0; i < 1000; i++) {
+        if (Math.floor(Math.random() * 2) + 1 == 1) detune+10;
+        else detune-10;
+        sleep(2000);
+    }
+    setDetune(0);
+}
 
 document.addEventListener("keydown", function onPress(event) {
     if (!event.repeat) {

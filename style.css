@@ -1,0 +1,11 @@
+body {
+    font-family: Helvetica;
+    font-weight: 100;
+}
+
+#options {
+    background: #fffaf2;
+    border: solid black 1px;
+    border-radius: 2px;
+    padding: 5px;
+}
